@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>5チャンネル、同じ運命 | 外国人×日本食YouTubeの寿命カーブ</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --paper: #f5f1e8;
+    --paper-2: #ebe5d4;
+    --paper-3: #ddd3b8;
+    --ink: #1a1a1a;
+    --ink-soft: #4a4a4a;
+    --rule: #c8bfa8;
+    --accent: #c1272d;
+    --accent-2: #1e3a5f;
+    --gold: #d4a017;
+    --green: #2d7a3e;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Noto Sans JP', sans-serif;
+    line-height: 1.7;
+  }
+  .container { max-width: 1080px; margin: 0 auto; padding: 0 32px; }
+  @media (max-width: 720px) { .container { padding: 0 20px; } }
+
+  /* Slide-like sections */
+  .slide {
+    min-height: 80vh;
+    padding: 100px 0 80px;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .slide.short { min-height: auto; padding: 80px 0; }
+  .slide.hero {
+    min-height: 100vh;
+    background: var(--ink);
+    color: var(--paper);
+    padding-top: 80px;
+  }
+
+  /* HERO */
+  .hero-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--gold);
+    margin-bottom: 32px;
+  }
+  .hero-title {
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 900;
+    font-size: clamp(48px, 9vw, 96px);
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+    margin-bottom: 32px;
+  }
+  .hero-title .accent { color: var(--gold); }
+  .hero-subtitle {
+    font-family: 'Shippori Mincho', serif;
+    font-size: clamp(18px, 2.4vw, 26px);
+    font-weight: 500;
+    line-height: 1.5;
+    max-width: 720px;
+    color: rgba(245,241,232,0.85);
+    margin-bottom: 48px;
+  }
+  .hero-takeaway {
+    border-top: 1px solid rgba(245,241,232,0.3);
+    padding-top: 32px;
+    max-width: 720px;
+  }
+  .hero-takeaway-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+  .hero-takeaway-text {
+    font-family: 'Shippori Mincho', serif;
+    font-size: clamp(16px, 1.8vw, 19px);
+    line-height: 1.7;
+    font-weight: 500;
+  }
+  .hero-takeaway-text strong { color: var(--gold); }
+
+  /* Section labels */
+  .slide-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.35em;
+    color: var(--accent);
+    margin-bottom: 24px;
+  }
+  .slide-headline {
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 800;
+    font-size: clamp(32px, 5vw, 56px);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin-bottom: 24px;
+  }
+  .slide-headline .accent { color: var(--accent); }
+  .slide-headline .strike { 
+    text-decoration: line-through;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 4px;
+    opacity: 0.5;
+  }
+  .slide-sub {
+    font-family: 'Shippori Mincho', serif;
+    font-size: clamp(17px, 2vw, 21px);
+    color: var(--ink-soft);
+    line-height: 1.7;
+    max-width: 760px;
+    margin-bottom: 48px;
+    font-weight: 500;
+  }
+  .slide-sub strong { color: var(--accent); font-weight: 700; }
+
+  /* Big number display */
+  .big-number {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin: 48px 0;
+  }
+  .big-number .num {
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 900;
+    font-size: clamp(80px, 14vw, 160px);
+    line-height: 0.9;
+    color: var(--accent);
+    letter-spacing: -0.03em;
+  }
+  .big-number .num .small { font-size: 0.4em; vertical-align: super; color: var(--ink-soft); margin-left: 8px; font-weight: 700; }
+  .big-number .caption {
+    font-family: 'Shippori Mincho', serif;
+    font-size: clamp(17px, 2vw, 22px);
+    font-weight: 600;
+    margin-top: 16px;
+    max-width: 680px;
+    line-height: 1.5;
+  }
+
+  /* Chart blocks - simpler */
+  .chart-wrap {
+    background: white;
+    padding: 32px 28px 24px;
+    margin: 24px 0;
+    border: 1px solid var(--rule);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+  }
+  .chart-wrap .title {
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 6px;
+  }
+  .chart-wrap .caption {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--ink-soft);
+    margin-bottom: 24px;
+  }
+  .chart-canvas { height: 420px; position: relative; }
+  @media (max-width: 720px) { .chart-canvas { height: 320px; } }
+
+  /* Position cards - "you are here" */
+  .position-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin: 48px 0;
+  }
+  @media (max-width: 900px) { .position-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 500px) { .position-grid { grid-template-columns: 1fr; } }
+  .position-card {
+    background: white;
+    border: 1px solid var(--rule);
+    padding: 20px 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  .position-card .progress-bg {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 6px;
+    background: var(--paper-3);
+  }
+  .position-card .progress-fill {
+    position: absolute;
+    bottom: 0; left: 0;
+    height: 6px;
+    background: var(--accent);
+  }
+  .position-card.win { border-top: 4px solid var(--green); }
+  .position-card.mid { border-top: 4px solid var(--gold); }
+  .position-card.late { border-top: 4px solid var(--accent); }
+  .position-card .ch-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+  .position-card .ch-name {
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 16px;
+    line-height: 1.3;
+    min-height: 40px;
+  }
+  .position-card .ch-stage {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--ink-soft);
+    margin-bottom: 4px;
+  }
+  .position-card .ch-pct {
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 800;
+    font-size: 36px;
+    line-height: 1.0;
+    margin-bottom: 4px;
+  }
+  .position-card .ch-pct.win { color: var(--green); }
+  .position-card .ch-pct.mid { color: var(--gold); }
+  .position-card .ch-pct.late { color: var(--accent); }
+  .position-card .ch-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-soft);
+    margin-top: 8px;
+  }
+
+  /* Lifecycle path visualization */
+  .lifecycle-bar {
+    margin: 48px 0;
+    position: relative;
+  }
+  .lifecycle-bar-track {
+    height: 60px;
+    background: linear-gradient(90deg, 
+      var(--green) 0%, 
+      var(--gold) 50%, 
+      var(--accent) 100%);
+    position: relative;
+    border-radius: 4px;
+  }
+  .lifecycle-bar-stop {
+    position: absolute;
+    top: -8px; bottom: -8px;
+    width: 2px;
+    background: var(--ink);
+  }
+  .lifecycle-bar-label {
+    position: absolute;
+    top: 76px;
+    transform: translateX(-50%);
+    text-align: center;
+    width: 80px;
+  }
+  .lifecycle-bar-label .pct {
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 800;
+    font-size: 22px;
+    color: var(--ink);
+  }
+  .lifecycle-bar-label .when {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    letter-spacing: 0.1em;
+    margin-top: 2px;
+  }
+  .lifecycle-spacer { height: 110px; }
+
+  /* Forecast comparison cards */
+  .forecast-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    margin: 48px 0;
+  }
+  @media (max-width: 720px) { .forecast-grid { grid-template-columns: 1fr; } }
+  .forecast-card {
+    background: white;
+    padding: 28px;
+    border: 1px solid var(--rule);
+    border-top: 4px solid var(--gold);
+  }
+  .forecast-card .name {
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 800;
+    font-size: 22px;
+    margin-bottom: 4px;
+  }
+  .forecast-card .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--ink-soft);
+    margin-bottom: 20px;
+  }
+  .forecast-card .now-section {
+    background: var(--paper-2);
+    padding: 14px 16px;
+    margin: 12px 0;
+    border-left: 4px solid var(--ink);
+  }
+  .forecast-card .future-section {
+    background: rgba(193,39,45,0.06);
+    padding: 14px 16px;
+    margin: 12px 0;
+    border-left: 4px solid var(--accent);
+  }
+  .forecast-card .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--ink-soft);
+    margin-bottom: 4px;
+  }
+  .forecast-card .section-value {
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 1.2;
+  }
+  .forecast-card .section-value .small {
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin-left: 6px;
+  }
+  .forecast-card .section-value.dn { color: var(--accent); }
+  .forecast-card .arrow {
+    text-align: center;
+    font-size: 24px;
+    color: var(--accent);
+    margin: 4px 0;
+    line-height: 1;
+  }
+
+  /* Quote */
+  .takeaway {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 48px 40px;
+    margin: 60px 0;
+    border-left: 8px solid var(--accent);
+  }
+  .takeaway .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+  .takeaway .text {
+    font-family: 'Shippori Mincho', serif;
+    font-size: clamp(20px, 2.6vw, 28px);
+    font-weight: 600;
+    line-height: 1.55;
+  }
+  .takeaway .text strong { color: var(--gold); }
+
+  /* Final TL;DR */
+  .final-list {
+    list-style: none;
+    margin: 32px 0;
+    counter-reset: final;
+  }
+  .final-list li {
+    counter-increment: final;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 24px;
+    align-items: baseline;
+  }
+  .final-list li::before {
+    content: counter(final, decimal-leading-zero);
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 800;
+    font-size: 40px;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .final-list li .item-text {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 19px;
+    line-height: 1.6;
+    font-weight: 500;
+  }
+  .final-list li .item-text strong { color: var(--accent); }
+
+  footer {
+    padding: 48px 0;
+    border-top: 1px solid var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--ink-soft);
+    text-align: center;
+  }
+
+  /* Inline emphasis text */
+  .reveal {
+    background: linear-gradient(180deg, transparent 60%, rgba(212,160,23,0.4) 60%);
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="slide hero">
+  <div class="container">
+    <div class="hero-meta">外国人×日本食 YouTube 競合分析 / 2026.05</div>
+    <h1 class="hero-title">5チャンネル、<br><span class="accent">同じ運命</span>。</h1>
+    <p class="hero-subtitle">外国人が日本食を初体験する「リアクション系」の5チャンネル。表面的には全く違う見え方をしているが、データを揃え直すと<span class="reveal" style="color: white;">全社が同じカーブを描いていた</span>。</p>
+    <div class="hero-takeaway">
+      <div class="hero-takeaway-label">本レポートのメインメッセージ</div>
+      <div class="hero-takeaway-text">このジャンルには、ピーク到達から約3年でピーク視聴の<strong>1/4まで縮む</strong>「チャンネル寿命カーブ」が存在する。今勝っているように見えるイチマルクも訪日ありがとうも、<strong>同じカーブの早い位置にいるだけ</strong>。</div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 1: 5社の見えやすい姿 -->
+<section class="slide">
+  <div class="container">
+    <div class="slide-num">01 / まず、暦時間で見る</div>
+    <h2 class="slide-headline">バラバラに見える、<br>5つの物語。</h2>
+    <p class="slide-sub">5社それぞれの長尺動画の四半期視聴回数を、普通の時間軸で並べた。<strong>ピークの時期が全社ばらつき</strong>、訪日だけが右肩上がり、老舗2社は崩落中、というふうに見える。これだけ見れば「各社それぞれの物語」と思う。</p>
+    <div class="chart-wrap">
+      <div class="title">5社の四半期中央視聴 / 暦時間軸</div>
+      <div class="caption">2023 Q1 — 2026 Q2 / 5分超の長尺動画のみ</div>
+      <div class="chart-canvas"><canvas id="calendarChart"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 2: The reveal -->
+<section class="slide">
+  <div class="container">
+    <div class="slide-num">02 / ところが、揃え直すと</div>
+    <h2 class="slide-headline"><span class="strike">5つの物語</span> ではなく<br><span class="accent">1つのカーブ</span>だった。</h2>
+    <p class="slide-sub">5社それぞれの「ピーク四半期」を起点(Q+0)に揃え直す。視聴回数も「ピーク=100%」に正規化する。すると、<strong>全社がほぼ同じカーブに乗っていることが見える</strong>。</p>
+    <div class="chart-wrap">
+      <div class="title">ピーク四半期=0に揃えた減衰カーブ</div>
+      <div class="caption">Y=ピーク比 % / X=ピークからの経過四半期 / 太い黒線=5社平均</div>
+      <div class="chart-canvas" style="height: 480px;"><canvas id="alignedChart"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 3: Big number -->
+<section class="slide short">
+  <div class="container">
+    <div class="slide-num">03 / 衝撃の一致点</div>
+    <h2 class="slide-headline">Q+9で、<br>3社全員が<br><span class="accent">同じ場所</span>に着地。</h2>
+    <div class="big-number">
+      <div class="num">34<span style="color: var(--ink-soft);">〜</span>36<span class="small">%</span></div>
+      <div class="caption">ピークから9四半期(=約2年3ヶ月)後、<strong>MOMOKA 36% / 冒険記 34% / タロウ 36%</strong>。ピーク視聴が桁違いに違う3社が、ピタリ同じパーセンテージに着地している。これは偶然ではなくジャンル構造。</div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 4: The simplified curve -->
+<section class="slide">
+  <div class="container">
+    <div class="slide-num">04 / カーブを記憶する</div>
+    <h2 class="slide-headline">3年で <span class="accent">1/4 まで縮む</span>。<br>これがこのジャンルの寿命。</h2>
+    <p class="slide-sub">5社平均で見ると、減衰は<strong>ほぼ等速</strong>。「最初に急落して落ち着く」のではなく、<strong>3年間ずっと落ち続ける</strong>のがこのジャンルの特徴。</p>
+
+    <div class="lifecycle-bar">
+      <div class="lifecycle-bar-track"></div>
+      <div class="lifecycle-bar-stop" style="left: 0%;"></div>
+      <div class="lifecycle-bar-label" style="left: 0%;">
+        <div class="pct">100%</div>
+        <div class="when">ピーク</div>
+      </div>
+      <div class="lifecycle-bar-stop" style="left: 33%;"></div>
+      <div class="lifecycle-bar-label" style="left: 33%;">
+        <div class="pct">70%</div>
+        <div class="when">1年後</div>
+      </div>
+      <div class="lifecycle-bar-stop" style="left: 66%;"></div>
+      <div class="lifecycle-bar-label" style="left: 66%;">
+        <div class="pct">45%</div>
+        <div class="when">2年後</div>
+      </div>
+      <div class="lifecycle-bar-stop" style="left: 100%;"></div>
+      <div class="lifecycle-bar-label" style="left: 100%; transform: translateX(-80%);">
+        <div class="pct">25%</div>
+        <div class="when">3年後</div>
+      </div>
+      <div class="lifecycle-spacer"></div>
+    </div>
+
+    <div class="takeaway">
+      <div class="label">記憶すべき法則</div>
+      <div class="text">ピークが <strong>100</strong> なら、<br>1年後は <strong>70</strong>、2年後は <strong>45</strong>、3年後は <strong>25</strong>。</div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 5: Where each channel sits -->
+<section class="slide">
+  <div class="container">
+    <div class="slide-num">05 / 各社の現在地</div>
+    <h2 class="slide-headline">いま、5社はどこにいる？</h2>
+    <p class="slide-sub">ピークからの経過四半期と、現時点のピーク残存率を一覧で見る。<strong>イチマルクと訪日が「強そうに見える」のは、カーブの早い位置にいるだけ</strong>。</p>
+
+    <div class="position-grid">
+      <div class="position-card late">
+        <div class="ch-label">最古参</div>
+        <div class="ch-name">MOMOKA</div>
+        <div class="ch-stage">ピーク 2023Q2 / Q+11経過</div>
+        <div class="ch-pct late">24%</div>
+        <div class="ch-meta">2.64M → 619K</div>
+        <div class="progress-bg"></div>
+        <div class="progress-fill" style="width: 92%;"></div>
+      </div>
+      <div class="position-card late">
+        <div class="ch-label">最古参</div>
+        <div class="ch-name">冒険記</div>
+        <div class="ch-stage">ピーク 2023Q3 / Q+10経過</div>
+        <div class="ch-pct late">21%</div>
+        <div class="ch-meta">1.69M → 347K</div>
+        <div class="progress-bg"></div>
+        <div class="progress-fill" style="width: 83%;"></div>
+      </div>
+      <div class="position-card mid">
+        <div class="ch-label">中堅 ★</div>
+        <div class="ch-name">タロウとYouごはん</div>
+        <div class="ch-stage">ピーク 2023Q4 / Q+9経過</div>
+        <div class="ch-pct mid">36%</div>
+        <div class="ch-meta">213K → 77K</div>
+        <div class="progress-bg"></div>
+        <div class="progress-fill" style="width: 75%;"></div>
+      </div>
+      <div class="position-card win">
+        <div class="ch-label">新興</div>
+        <div class="ch-name">イチマルク FREE RIDE</div>
+        <div class="ch-stage">ピーク 2024Q2 / Q+7経過</div>
+        <div class="ch-pct win">57%</div>
+        <div class="ch-meta">215K → 123K</div>
+        <div class="progress-bg"></div>
+        <div class="progress-fill" style="width: 58%;"></div>
+      </div>
+      <div class="position-card win">
+        <div class="ch-label">最若手</div>
+        <div class="ch-name">訪日ありがとうch</div>
+        <div class="ch-stage">ピーク 2025Q2 / Q+3経過</div>
+        <div class="ch-pct win">74%</div>
+        <div class="ch-meta">182K → 134K</div>
+        <div class="progress-bg"></div>
+        <div class="progress-fill" style="width: 25%;"></div>
+      </div>
+    </div>
+
+    <p style="font-size: 12px; color: var(--ink-soft); margin-top: 16px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.05em;">バー = ピークから3年(Q+12)までの経過進捗度</p>
+  </div>
+</section>
+
+<!-- SLIDE 6: Forecast -->
+<section class="slide">
+  <div class="container">
+    <div class="slide-num">06 / 予測</div>
+    <h2 class="slide-headline">「今勝ってる2社」の<br>本当の姿。</h2>
+    <p class="slide-sub">同じカーブに沿って今後2年が進めば、イチマルクと訪日ありがとうchも<strong>必ず同じ場所に到達する</strong>。これは脅しではなく、5社×14四半期のデータが示している構造。</p>
+
+    <div class="forecast-grid">
+      <div class="forecast-card">
+        <div class="name">イチマルク FREE RIDE</div>
+        <div class="meta">現在 Q+7経過 / 残存57%</div>
+        <div class="now-section">
+          <div class="section-label">今 (2026Q1)</div>
+          <div class="section-value">123K <span class="small">/ 中央視聴</span></div>
+        </div>
+        <div class="arrow">↓</div>
+        <div class="future-section">
+          <div class="section-label">12ヶ月後 (2027Q1)</div>
+          <div class="section-value dn">≈ 54K <span class="small">/ −56%</span></div>
+        </div>
+        <div class="arrow">↓</div>
+        <div class="future-section">
+          <div class="section-label">18ヶ月後 (2027Q2)</div>
+          <div class="section-value dn">≈ 48K <span class="small">/ −61%</span></div>
+        </div>
+      </div>
+
+      <div class="forecast-card">
+        <div class="name">訪日ありがとうch</div>
+        <div class="meta">現在 Q+3経過 / 残存74%</div>
+        <div class="now-section">
+          <div class="section-label">今 (2026Q1)</div>
+          <div class="section-value">134K <span class="small">/ 中央視聴</span></div>
+        </div>
+        <div class="arrow">↓</div>
+        <div class="future-section">
+          <div class="section-label">12ヶ月後 (2027Q1)</div>
+          <div class="section-value dn">≈ 86K <span class="small">/ −36%</span></div>
+        </div>
+        <div class="arrow">↓</div>
+        <div class="future-section">
+          <div class="section-label">2年後 (2028Q1)</div>
+          <div class="section-value dn">≈ 46K <span class="small">/ −66%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <div class="title">実測 + 予測カーブ</div>
+      <div class="caption">実線=実測 / 点線=平均カーブ準拠の予測</div>
+      <div class="chart-canvas"><canvas id="forecastChart"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 7: Key Quote -->
+<section class="slide short">
+  <div class="container">
+    <div class="takeaway" style="margin: 0;">
+      <div class="label">結論</div>
+      <div class="text">これは「賢い社・賢くない社」の話ではない。<br><br>「<strong>外国人×日本食×長尺リアクション</strong>」というジャンルそのものが、<br><strong>3年で4分の1まで縮む寿命構造</strong>を持っている。</div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 8: TL;DR -->
+<section class="slide">
+  <div class="container">
+    <div class="slide-num">07 / 要点まとめ</div>
+    <h2 class="slide-headline">この4つだけ<br>覚えて帰る。</h2>
+    <ol class="final-list">
+      <li>
+        <span class="item-text">5社のピーク時期はバラバラ。でも<strong>ピーク基準で揃えると同じカーブ</strong>に乗る。Q+9で3社が34-36%にピタリ揃う。</span>
+      </li>
+      <li>
+        <span class="item-text">減衰スピードは<strong>ほぼ等速</strong>。1年で70%、2年で45%、3年で25%。「落ち着く」フェーズがない。</span>
+      </li>
+      <li>
+        <span class="item-text">イチマルク・訪日ありがとうchも<strong>同じカーブを辿る可能性が高い</strong>。今は若いから上にいるだけ。</span>
+      </li>
+      <li>
+        <span class="item-text">カーブを突破できた事例は5社中ゼロ。<strong>突破するにはジャンル外への展開（形式刷新）</strong>が必要。</span>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  Source: YouTube Data API · 2026.05.18 snapshot · 14 quarters · n=5 channels · Analysis: Internal
+</footer>
+
+<script>
+const DATA = {"Taro":{"q_long_n":[15,28,33,33,33,31,36,29,34,34,36,33,34,16],"q_long_med":[33334,95716,111089,213231,200360,212296,140824,181422,145319,111105,88554,89397,77229,72238],"q_long_tot":[887212,5398267,5864428,8071036,10066030,7631229,6266846,7278856,6368515,4706533,4707173,3888337,2910124,1233194],"q_long_avg":[59147,192795,177709,244576,305031,246168,174079,250995,187309,138427,130754,117828,85591,77074],"total_videos":520,"long_total":432,"total_views":144991665,"first_video":"2022-10"},"MOMOKA":{"q_long_n":[18,16,15,16,15,15,13,13,13,13,13,13,13,7],"q_long_med":[2085067,2639555,2158394,2035920,1715641,1394772,1496991,1527828,1204701,1350212,939949,797022,619320,589803],"q_long_tot":[48850755,49556825,34887457,35704126,25911006,23178799,20449727,22442148,15535789,18672246,13350180,10333507,8123209,3737187],"q_long_avg":[2713930,3097301,2325830,2231507,1727400,1545253,1573055,1726319,1195060,1436326,1026936,794885,624862,533883],"total_videos":729,"long_total":718,"total_views":604212237,"first_video":"2017-05"},"イチマルク":{"q_long_n":[0,0,0,9,19,26,33,38,32,49,49,34,29,16],"q_long_med":[0,0,0,125877,171656,214836,161119,150419,188557,179321,127159,141060,122889,101640],"q_long_tot":[0,0,0,1290238,3634210,6629101,6383941,6010612,6694708,9627646,7157987,5476709,4001511,1772557],"q_long_avg":[0,0,0,143359,191274,254965,193452,158174,209209,196482,146081,161079,137983,110784],"total_videos":432,"long_total":334,"total_views":64939401,"first_video":"2023-10"},"冒険記":{"q_long_n":[16,20,21,17,11,9,10,13,10,10,12,9,8,4],"q_long_med":[810900,1115033,1686232,1490183,1445417,947521,1631142,1015860,854790,734043,649271,576559,347363,452758],"q_long_tot":[15958868,29632868,42673316,26034578,16073165,11641558,17697375,15469310,9359324,7361182,8485285,6246050,2921073,1880338],"q_long_avg":[997429,1481643,2032062,1531445,1461196,1293506,1769737,1189946,935932,736118,707107,694005,365134,470084],"total_videos":472,"long_total":470,"total_views":411101545,"first_video":"2016-08"},"訪日ありがとう":{"q_long_n":[0,1,5,17,20,26,27,26,27,24,20,18,12,6],"q_long_med":[0,33860,34334,49384,24801,55954,111893,94102,86431,182426,139566,138525,133999,60644],"q_long_tot":[0,33860,212493,1080895,1128371,3899297,3388490,3192439,4101208,7582215,3612204,2958250,1574237,599175],"q_long_avg":[0,33860,42498,63582,56418,149972,125499,122786,151896,315925,180610,164347,131186,99862],"total_videos":293,"long_total":229,"total_views":53941185,"first_video":"2023-06"},"quarters":["2023Q1","2023Q2","2023Q3","2023Q4","2024Q1","2024Q2","2024Q3","2024Q4","2025Q1","2025Q2","2025Q3","2025Q4","2026Q1","2026Q2"]};
+const ALIGNED = {"MOMOKA":{"peak_q":"2023Q2","peak_val":2639555,"trajectory":[{"q_offset":0,"pct":100.0,"val":2639555,"q":"2023Q2"},{"q_offset":1,"pct":81.8,"val":2158394,"q":"2023Q3"},{"q_offset":2,"pct":77.1,"val":2035920,"q":"2023Q4"},{"q_offset":3,"pct":65.0,"val":1715641,"q":"2024Q1"},{"q_offset":4,"pct":52.8,"val":1394772,"q":"2024Q2"},{"q_offset":5,"pct":56.7,"val":1496991,"q":"2024Q3"},{"q_offset":6,"pct":57.9,"val":1527828,"q":"2024Q4"},{"q_offset":7,"pct":45.6,"val":1204701,"q":"2025Q1"},{"q_offset":8,"pct":51.2,"val":1350212,"q":"2025Q2"},{"q_offset":9,"pct":35.6,"val":939949,"q":"2025Q3"},{"q_offset":10,"pct":30.2,"val":797022,"q":"2025Q4"},{"q_offset":11,"pct":23.5,"val":619320,"q":"2026Q1"},{"q_offset":12,"pct":22.3,"val":589803,"q":"2026Q2"}]},"冒険記":{"peak_q":"2023Q3","peak_val":1686232,"trajectory":[{"q_offset":0,"pct":100.0,"val":1686232,"q":"2023Q3"},{"q_offset":1,"pct":88.4,"val":1490183,"q":"2023Q4"},{"q_offset":2,"pct":85.7,"val":1445417,"q":"2024Q1"},{"q_offset":3,"pct":56.2,"val":947521,"q":"2024Q2"},{"q_offset":4,"pct":96.7,"val":1631142,"q":"2024Q3"},{"q_offset":5,"pct":60.2,"val":1015860,"q":"2024Q4"},{"q_offset":6,"pct":50.7,"val":854790,"q":"2025Q1"},{"q_offset":7,"pct":43.5,"val":734043,"q":"2025Q2"},{"q_offset":8,"pct":38.5,"val":649271,"q":"2025Q3"},{"q_offset":9,"pct":34.2,"val":576559,"q":"2025Q4"},{"q_offset":10,"pct":20.6,"val":347363,"q":"2026Q1"},{"q_offset":11,"pct":26.9,"val":452758,"q":"2026Q2"}]},"Taro":{"peak_q":"2023Q4","peak_val":213231,"trajectory":[{"q_offset":0,"pct":100.0,"val":213231,"q":"2023Q4"},{"q_offset":1,"pct":94.0,"val":200360,"q":"2024Q1"},{"q_offset":2,"pct":99.6,"val":212296,"q":"2024Q2"},{"q_offset":3,"pct":66.0,"val":140824,"q":"2024Q3"},{"q_offset":4,"pct":85.1,"val":181422,"q":"2024Q4"},{"q_offset":5,"pct":68.2,"val":145319,"q":"2025Q1"},{"q_offset":6,"pct":52.1,"val":111105,"q":"2025Q2"},{"q_offset":7,"pct":41.5,"val":88554,"q":"2025Q3"},{"q_offset":8,"pct":41.9,"val":89397,"q":"2025Q4"},{"q_offset":9,"pct":36.2,"val":77229,"q":"2026Q1"},{"q_offset":10,"pct":33.9,"val":72238,"q":"2026Q2"}]},"イチマルク":{"peak_q":"2024Q2","peak_val":214836,"trajectory":[{"q_offset":0,"pct":100.0,"val":214836,"q":"2024Q2"},{"q_offset":1,"pct":75.0,"val":161119,"q":"2024Q3"},{"q_offset":2,"pct":70.0,"val":150419,"q":"2024Q4"},{"q_offset":3,"pct":87.8,"val":188557,"q":"2025Q1"},{"q_offset":4,"pct":83.5,"val":179321,"q":"2025Q2"},{"q_offset":5,"pct":59.2,"val":127159,"q":"2025Q3"},{"q_offset":6,"pct":65.7,"val":141060,"q":"2025Q4"},{"q_offset":7,"pct":57.2,"val":122889,"q":"2026Q1"},{"q_offset":8,"pct":47.3,"val":101640,"q":"2026Q2"}]},"訪日ありがとう":{"peak_q":"2025Q2","peak_val":182426,"trajectory":[{"q_offset":0,"pct":100.0,"val":182426,"q":"2025Q2"},{"q_offset":1,"pct":76.5,"val":139566,"q":"2025Q3"},{"q_offset":2,"pct":75.9,"val":138525,"q":"2025Q4"},{"q_offset":3,"pct":73.5,"val":133999,"q":"2026Q1"},{"q_offset":4,"pct":33.2,"val":60644,"q":"2026Q2"}]}};
+
+Chart.defaults.font.family = "'Noto Sans JP', sans-serif";
+Chart.defaults.color = '#4a4a4a';
+Chart.defaults.font.size = 11;
+
+const COLORS = {
+  shinise1: '#1e3a5f',
+  shinise2: '#5d7a99',
+  taro: '#c1272d',
+  ichimaru: '#d4a017',
+  hounichi: '#2d7a3e'
+};
+const CH_COLOR = {
+  '冒険記': COLORS.shinise1,
+  'MOMOKA': COLORS.shinise2,
+  'Taro': COLORS.taro,
+  'イチマルク': COLORS.ichimaru,
+  '訪日ありがとう': COLORS.hounichi
+};
+
+const Q_LABELS = DATA.quarters.map(q => q.replace('20','').replace('Q','/Q'));
+function fmt(n) {
+  if (n == null || !n) return '–';
+  if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n/1000).toFixed(0) + 'K';
+  return n;
+}
+const tickConfig = { color: '#4a4a4a', font: { family: "'JetBrains Mono', monospace", size: 11 } };
+const gridConfig = { color: 'rgba(200, 191, 168, 0.4)', drawBorder: false };
+
+function makeDataset(ch, key, isStar) {
+  return {
+    label: (isStar ? '★ ' : '') + ch,
+    data: DATA[ch][key].map(v => v === 0 ? null : v),
+    borderColor: CH_COLOR[ch],
+    backgroundColor: 'transparent',
+    borderWidth: isStar ? 3 : 2,
+    tension: 0.3,
+    pointRadius: isStar ? 4 : 3,
+    pointBackgroundColor: CH_COLOR[ch],
+    spanGaps: true
+  };
+}
+
+// Calendar chart
+new Chart(document.getElementById('calendarChart'), {
+  type: 'line',
+  data: {
+    labels: Q_LABELS,
+    datasets: [
+      makeDataset('Taro', 'q_long_med', true),
+      makeDataset('MOMOKA', 'q_long_med', false),
+      makeDataset('冒険記', 'q_long_med', false),
+      makeDataset('イチマルク', 'q_long_med', false),
+      makeDataset('訪日ありがとう', 'q_long_med', false)
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { font: { size: 12, weight: '500' }, boxWidth: 14, padding: 14 } },
+      tooltip: { callbacks: { label: c => `${c.dataset.label}: ${fmt(c.parsed.y)}` } }
+    },
+    scales: {
+      y: { ticks: { ...tickConfig, callback: v => fmt(v) }, grid: gridConfig, beginAtZero: true },
+      x: { ticks: tickConfig, grid: { display: false } }
+    }
+  }
+});
+
+// Aligned chart - the killer chart
+const channels = ['MOMOKA','冒険記','Taro','イチマルク','訪日ありがとう'];
+const maxOffset = 13;
+const offsetLabels = Array.from({length: maxOffset}, (_,i) => `Q+${i}`);
+
+const avgCurve = offsetLabels.map((_, i) => {
+  const vals = channels.map(ch => ALIGNED[ch].trajectory[i]?.pct).filter(v => v !== undefined);
+  return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
+});
+
+const alignedDatasets = channels.map(ch => {
+  const traj = ALIGNED[ch].trajectory;
+  const data = offsetLabels.map((_, i) => traj[i]?.pct ?? null);
+  const isStar = ch === 'Taro';
+  return {
+    label: (isStar ? '★ ' : '') + ch,
+    data: data,
+    borderColor: CH_COLOR[ch],
+    backgroundColor: 'transparent',
+    borderWidth: 1.5,
+    tension: 0.3,
+    pointRadius: isStar ? 4 : 3,
+    pointBackgroundColor: CH_COLOR[ch],
+    spanGaps: false,
+    order: 2
+  };
+});
+alignedDatasets.push({
+  label: '5社平均カーブ',
+  data: avgCurve,
+  borderColor: '#000',
+  backgroundColor: 'transparent',
+  borderWidth: 5,
+  tension: 0.2,
+  pointRadius: 6,
+  pointBackgroundColor: '#000',
+  pointStyle: 'rectRot',
+  order: 1
+});
+
+new Chart(document.getElementById('alignedChart'), {
+  type: 'line',
+  data: {
+    labels: offsetLabels,
+    datasets: alignedDatasets
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { font: { size: 12, weight: '500' }, boxWidth: 14, padding: 14 } },
+      tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.parsed.y?.toFixed(1)}%` } }
+    },
+    scales: {
+      y: {
+        ticks: { ...tickConfig, callback: v => v + '%' },
+        grid: gridConfig,
+        beginAtZero: true, max: 110,
+        title: { display: true, text: 'ピーク視聴比 (%)', font: { size: 12, weight: '700' } }
+      },
+      x: {
+        ticks: tickConfig,
+        grid: { display: false },
+        title: { display: true, text: 'ピーク四半期からの経過', font: { size: 12, weight: '700' } }
+      }
+    }
+  }
+});
+
+// Forecast chart for イチマルク and 訪日
+const ichiPeak = ALIGNED['イチマルク'].peak_val;
+const houPeak = ALIGNED['訪日ありがとう'].peak_val;
+const fcLabels = Array.from({length: 13}, (_,i) => `Q+${i}`);
+
+const ichiActual = ALIGNED['イチマルク'].trajectory.map(t => t.val);
+const houActual = ALIGNED['訪日ありがとう'].trajectory.map(t => t.val);
+while (ichiActual.length < fcLabels.length) ichiActual.push(null);
+while (houActual.length < fcLabels.length) houActual.push(null);
+
+const ichiCurrentOffset = ALIGNED['イチマルク'].trajectory.length - 1;
+const houCurrentOffset = ALIGNED['訪日ありがとう'].trajectory.length - 1;
+const ichiForecast = fcLabels.map((_, i) => i > ichiCurrentOffset && avgCurve[i] !== null ? Math.round(ichiPeak * avgCurve[i] / 100) : null);
+const houForecast = fcLabels.map((_, i) => i > houCurrentOffset && avgCurve[i] !== null ? Math.round(houPeak * avgCurve[i] / 100) : null);
+ichiForecast[ichiCurrentOffset] = ichiActual[ichiCurrentOffset];
+houForecast[houCurrentOffset] = houActual[houCurrentOffset];
+
+new Chart(document.getElementById('forecastChart'), {
+  type: 'line',
+  data: {
+    labels: fcLabels,
+    datasets: [
+      {
+        label: 'イチマルク 実測',
+        data: ichiActual.map((v,i) => i <= ichiCurrentOffset ? v : null),
+        borderColor: COLORS.ichimaru,
+        backgroundColor: 'transparent',
+        borderWidth: 3,
+        tension: 0.25,
+        pointRadius: 4,
+        pointBackgroundColor: COLORS.ichimaru
+      },
+      {
+        label: 'イチマルク 予測',
+        data: ichiForecast,
+        borderColor: COLORS.ichimaru,
+        backgroundColor: 'transparent',
+        borderWidth: 2.5,
+        borderDash: [8,5],
+        tension: 0.25,
+        pointRadius: 4,
+        pointBackgroundColor: 'rgba(212,160,23,0.4)',
+        pointBorderColor: COLORS.ichimaru,
+        pointBorderWidth: 1
+      },
+      {
+        label: '訪日 実測',
+        data: houActual.map((v,i) => i <= houCurrentOffset ? v : null),
+        borderColor: COLORS.hounichi,
+        backgroundColor: 'transparent',
+        borderWidth: 3,
+        tension: 0.25,
+        pointRadius: 4,
+        pointBackgroundColor: COLORS.hounichi
+      },
+      {
+        label: '訪日 予測',
+        data: houForecast,
+        borderColor: COLORS.hounichi,
+        backgroundColor: 'transparent',
+        borderWidth: 2.5,
+        borderDash: [8,5],
+        tension: 0.25,
+        pointRadius: 4,
+        pointBackgroundColor: 'rgba(45,122,62,0.4)',
+        pointBorderColor: COLORS.hounichi,
+        pointBorderWidth: 1
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { font: { size: 12, weight: '500' }, boxWidth: 14, padding: 14 } },
+      tooltip: { callbacks: { label: c => `${c.dataset.label}: ${fmt(c.parsed.y)}` } }
+    },
+    scales: {
+      y: {
+        ticks: { ...tickConfig, callback: v => fmt(v) },
+        grid: gridConfig,
+        beginAtZero: true,
+        title: { display: true, text: '中央視聴回数', font: { size: 12, weight: '700' } }
+      },
+      x: {
+        ticks: tickConfig,
+        grid: { display: false },
+        title: { display: true, text: 'ピーク四半期からの経過', font: { size: 12, weight: '700' } }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>
